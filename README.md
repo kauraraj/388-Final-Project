@@ -1,2 +1,2 @@
 # 388-Final-Project
-Final project for 388
+Final Project for 388 Raj and Jamie
