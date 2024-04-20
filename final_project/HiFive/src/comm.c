@@ -9,7 +9,49 @@ void auto_brake(int devid)
     // Task-1: 
     // Your code here (Use Lab 02 - Lab 04 for reference)
     // Use the directions given in the project document
-}
+
+    gpio_mode(RED_LED, OUTPUT);
+    gpio_mode(GREEN_LED, OUTPUT);
+    ser_setup(devid);
+
+    ser_printline(devid,"Setup complete\n"); 
+
+    uint16_t distance_data = 0;
+
+    while (1) {
+
+        if ('Y' == ser_read(devid) && 'Y' == ser_read(devid)) {
+            
+            char low = ser_read(devid);
+            char high = ser_read(devid);
+
+            distance_data = (high) << 8 | low;
+            printf("Distance %d\n", distance_data)
+            
+            if (distance_data > 200) {
+                gpio_write(RED_LED, OFF); 
+                gpio_write(GREEN_LED, ON); 
+            }
+            else if (distance_data > 100 && distance_data <= 200) {
+                gpio_write(RED_LED, ON); 
+                gpio_write(GREEN_LED, ON); 
+            }
+            else if (distance_data > 60 && distance_data <= 100) {
+                gpio_write(RED_LED, ON); 
+                gpio_write(GREEN_LED, OFF);           
+            }
+            else if (distance_data <= 60) {
+                for (int i = 0; i < 10; i++) {
+                    gpio_write(GREEN_LED, OFF);
+                    gpio_write(RED_LED, ON);
+                    delay(100);
+                    gpio_write(RED_LED, OFF);
+                    delay(100);
+                }
+
+            }                
+        }
+}   }
 
 int read_from_pi(int devid)
 {
