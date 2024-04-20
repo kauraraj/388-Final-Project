@@ -13,10 +13,23 @@ void auto_brake(int devid)
 
 int read_from_pi(int devid)
 {
-    // Task-2: 
-    // You code goes here (Use Lab 09 for reference)
-    // After performing Task-2 at dnn.py code, modify this part to read angle values from Raspberry Pi.
+    ser_setup(0); // uart0 debug
+    ser_setup(1); // uart1 Pi
 
+    printf("setup complete.\n");
+    printf("begin main loop\n");
+
+    while(1) {
+        if (ser_isready(1)) {
+            char buffer[10];
+            int value, read_data;
+            read_data = ser_readline(1, 10, buffer);
+            printf("from PI to HIFIVE: read (%d): %s\n", read_data, buffer);
+
+            int angle = atoi(buffer);
+            return angle;
+        }
+    }
 }
 
 void steering(int gpio, int pos)
