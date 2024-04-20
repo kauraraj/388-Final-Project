@@ -84,19 +84,9 @@ while(1):
 		rad = model.y.eval(feed_dict={model.x: [img]})[0][0]
 		deg = rad2deg(rad)
         
-        
-        
-		# Your code goes here in this if statement
-		# The if condition is used to send every 4th
-		# prediction from the model. This is so that
-		# the HiFive can run the other functions in between
 		if count%4 == 0:
-			pass
-			#Your code here.
-
+			ser1.write(bytes(str(deg) + '\n', 'utf-8'))
 		
-        
-        
 		pred_end   = time.time()
 
 		#Calculate the timings for each step
