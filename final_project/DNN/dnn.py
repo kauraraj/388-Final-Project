@@ -85,7 +85,7 @@ while(1):
 		deg = rad2deg(rad)
         
 		if count%4 == 0:
-			ser1.write(bytes(str(deg) + '\n', 'utf-8'))
+			ser1.write(bytes(str(deg) + '\n'))
 		
 		pred_end   = time.time()
 
