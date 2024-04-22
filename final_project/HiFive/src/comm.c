@@ -16,67 +16,55 @@ void auto_brake(int devid)
     // Your code here (Use Lab 02 - Lab 04 for reference)
     // Use the directions given in the project document
 
-    gpio_mode(RED_LED, OUTPUT);
-    gpio_mode(GREEN_LED, OUTPUT);
-    ser_setup(devid);
-
-    ser_printline(devid,"Setup complete\n"); 
-
     uint16_t distance_data = 0;
 
-    while (1) {
+    if ('Y' == ser_read(devid) && 'Y' == ser_read(devid)) {
+        
+        uint8_t low = ser_read(devid);
+        uint8_t high = ser_read(devid);
 
-        if ('Y' == ser_read(devid) && 'Y' == ser_read(devid)) {
-            
-            char low = ser_read(devid);
-            char high = ser_read(devid);
-
-            distance_data = (high) << 8 | low;
-            printf("Distance %d\n", distance_data)
-            
-            if (distance_data > 200) {
-                gpio_write(RED_LED, OFF); 
-                gpio_write(GREEN_LED, ON); 
-            }
-            else if (distance_data > 100 && distance_data <= 200) {
-                gpio_write(RED_LED, ON); 
-                gpio_write(GREEN_LED, ON); 
-            }
-            else if (distance_data > 60 && distance_data <= 100) {
-                gpio_write(RED_LED, ON); 
-                gpio_write(GREEN_LED, OFF);           
-            }
-            else if (distance_data <= 60) {
-                gpio_write(GREEN_LED, OFF);
-                gpio_write(RED_LED, ON);
-                delay(100);
-                gpio_write(RED_LED, OFF);
-                delay(100);
-
-            }                
+        distance_data = (high << 8) | low;
+        printf("\nDistance %d", distance_data)
+        
+        if (distance_data > 200) {
+            gpio_write(BLUE_LED, OFF); 
+            gpio_write(RED_LED, OFF); 
+            gpio_write(GREEN_LED, ON); 
         }
-}   }
+        else if (distance_data > 100 && distance_data <= 200) {
+            gpio_write(BLUE_LED, OFF); 
+            gpio_write(RED_LED, ON); 
+            gpio_write(GREEN_LED, ON); 
+        }
+        else if (distance_data > 60 && distance_data <= 100) {
+            gpio_write(BLUE_LED, OFF); 
+            gpio_write(GREEN_LED, OFF); 
+            gpio_write(RED_LED, ON); 
+        }
+        else if (distance_data <= 60) {
+            gpio_write(BLUE_LED, OFF);
+            gpio_write(GREEN_LED, OFF);
+            gpio_write(RED_LED, ON);
+            delay(100);
+            gpio_write(RED_LED, OFF);
+            delay(100);
+
+        }                
+    }
+}
 
 int read_from_pi(int devid)
 {
-    ser_setup(0); // uart0 debug
-    ser_setup(1); // uart1 Pi
+    int angle = 0;
 
-    printf("setup complete.\n");
-    printf("begin main loop\n");
+    if (ser_isready(1)) {
+        char buffer[100];
+        ser_readline(1, 100, buffer);
+        // printf("from PI to HIFIVE: read (%d): %s\n", read_data, buffer);
+        sscanf(buffer, "%d", &angle);
 
-    while(1) {
-
-        if (ser_isready(1)) {
-            char buffer[10];
-            int value, read_data;
-            read_data = ser_readline(1, 10, buffer);
-            printf("from PI to HIFIVE: read (%d): %s\n", read_data, buffer);
-
-            int angle = atoi(buffer);
-            return angle;
-        }
     }
+    return angle;
 }
 
 void steering(int gpio, int pos)
@@ -116,6 +104,7 @@ int main()
         auto_brake(lidar_to_hifive); // measuring distance using lidar and braking
         int angle = read_from_pi(pi_to_hifive); //getting turn direction from pi
         printf("\nangle=%d", angle) 
+
         int gpio = PIN_19; 
         for (int i = 0; i < 10; i++){
             // Here, we set the angle to 180 if the prediction from the DNN is a positive angle
@@ -124,16 +113,16 @@ int main()
             // You are welcome to pass the angle values directly to the steering function.
             // If the servo function is written correctly, it should still work,
             // only the movements of the servo will be more subtle
-            if(angle>0){
-                steering(gpio, 180);
-            }
-            else {
-                steering(gpio,0);
-            }
+            // if(angle>0){
+            //      steering(gpio, 180);
+            //  }
+            // else {
+            //     steering(gpio,0);
+            // }
             
             // Uncomment the line below to see the actual angles on the servo.
             // Remember to comment out the if-else statement above!
-            // steering(gpio, angle);
+            steering(gpio, angle);
         }
 
     }
