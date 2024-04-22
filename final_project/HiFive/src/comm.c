@@ -4,6 +4,10 @@
 
 #include "eecs388_lib.h"
 
+#define SERVO_PULSE_MAX 2400
+#define SERVO_PULSE_MIN 544
+#define SERVO_PERIOD 20000
+
 void auto_brake(int devid)
 {
     // Task-1: 
@@ -76,9 +80,14 @@ int read_from_pi(int devid)
 
 void steering(int gpio, int pos)
 {
-    // Task-3: 
-    // Your code goes here (Use Lab 05 for reference)
-    // Check the project document to understand the task
+    int degree = round((SERVO_PULSE_MAX - SERVO_PULSE_MIN) / 180);
+    int time = SERVO_PULSE_MIN + (pos * degree);
+    int time_remain = SERVO_PERIOD - time;
+
+    gpio_write(gpio, ON);
+    delay_usec(time);
+    gpio_write(gpio, OFF);
+    delay_usec(time_remain);
 }
 
 
