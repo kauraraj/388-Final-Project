@@ -1,6 +1,8 @@
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "eecs388_lib.h"
 
@@ -45,13 +47,11 @@ void auto_brake(int devid)
                 gpio_write(GREEN_LED, OFF);           
             }
             else if (distance_data <= 60) {
-                for (int i = 0; i < 10; i++) {
-                    gpio_write(GREEN_LED, OFF);
-                    gpio_write(RED_LED, ON);
-                    delay(100);
-                    gpio_write(RED_LED, OFF);
-                    delay(100);
-                }
+                gpio_write(GREEN_LED, OFF);
+                gpio_write(RED_LED, ON);
+                delay(100);
+                gpio_write(RED_LED, OFF);
+                delay(100);
 
             }                
         }
@@ -66,6 +66,7 @@ int read_from_pi(int devid)
     printf("begin main loop\n");
 
     while(1) {
+
         if (ser_isready(1)) {
             char buffer[10];
             int value, read_data;
@@ -89,7 +90,6 @@ void steering(int gpio, int pos)
     gpio_write(gpio, OFF);
     delay_usec(time_remain);
 }
-
 
 int main()
 {
